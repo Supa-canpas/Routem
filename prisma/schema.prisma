@@ -42,16 +42,16 @@ model Image {
 
   // リレーション
   uploaderId String? @db.Uuid
-  uploader   User?   @relation("UserUploads", fields: [uploaderId], references: [id])
+  uploader   User?   @relation("UserUploads", fields: [uploaderId], references: [id], onDelete: SetNull)
 
   routeNodeId String?    @db.Uuid
   routeNode   RouteNode? @relation("NodeImages", fields: [routeNodeId], references: [id], onDelete: SetNull)
 
   userIconId String? @unique @db.Uuid
-  userIcon   User?   @relation("UserIcon", fields: [userIconId], references: [id])
+  userIcon   User?   @relation("UserIcon", fields: [userIconId], references: [id], onDelete: SetNull)
 
   userBackgroundId String? @unique @db.Uuid
-  userBackground   User?   @relation("UserBackground", fields: [userBackgroundId], references: [id])
+  userBackground   User?   @relation("UserBackground", fields: [userBackgroundId], references: [id], onDelete: SetNull)
   // ! s3のクリーンアップをクーロンで行う為に、setNullにしてる
   routeThumbId     String? @unique @db.Uuid
   routeThumb       Route?  @relation("RouteThumbnail", fields: [routeThumbId], references: [id], onDelete: SetNull)
@@ -103,7 +103,7 @@ model RouteNode {
   routeId String @db.Uuid
   route   Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
-  spotId String
+  spotId String @db.Uuid
   spot   Spot   @relation(fields: [spotId], references: [id])
 
   transitSteps TransitStep[]

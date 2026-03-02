@@ -73,7 +73,7 @@ export default function RootClient({ id }: { id: string }) {
         bio={currentUser?.bio as string}
         iconUrl={currentUser?.icon?.url}
         bgUrl={currentUser?.background?.url}
-        isOwnPage={true}
+        isOwnPage={currentUser?.id === id}
       />
 
       <UserProfileContent

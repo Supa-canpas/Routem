@@ -1,6 +1,7 @@
 // lib/supabase/api.ts (新しく作るか、server.tsに追加)
 import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
+import {cookies} from "next/dist/server/request/cookies";
 
 export async function createClient(request: NextRequest) {
   // 1. まずスマホからの「ヘッダー」を確認する
@@ -9,7 +10,7 @@ export async function createClient(request: NextRequest) {
   if (authHeader) {
     // A. ヘッダーがある場合（スマホからのアクセス）
     // Authorization: Bearer <token> の形なので、そのままSupabaseに渡すためのクライアントを作る
-    
+
     return createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
@@ -29,18 +30,24 @@ export async function createClient(request: NextRequest) {
   }
 
   // 2. ヘッダーがないなら、いつもの「クッキー」を確認する（Webからのアクセス）
+  const cookieStore = await cookies()
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
-          // APIルート内でクッキー更新が必要ならセット（基本は読み取り専用でOK）
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+          } catch {
+            // The setAll method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
         },
       },
     }

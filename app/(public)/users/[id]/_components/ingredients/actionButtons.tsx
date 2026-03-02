@@ -1,10 +1,12 @@
 import { MdSettings, MdInfoOutline, MdDarkMode, MdLightMode } from 'react-icons/md'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import UserProfileEditModal from '../templates/userProfileEditModal'
 
 export default function ActionButtons({ isOwnPage }: { isOwnPage: boolean }) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -27,10 +29,19 @@ export default function ActionButtons({ isOwnPage }: { isOwnPage: boolean }) {
         </button>
       )}
       {isOwnPage ? (
-        <button className="flex items-center gap-2 bg-background-1 border border-grass px-4 py-2 rounded-xl font-bold hover:bg-grass transition-colors cursor-pointer shadow-sm">
-          <MdSettings size={20} />
-          <span>Edit Profile</span>
-        </button>
+        <>
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="flex items-center gap-2 bg-background-1 border border-grass px-4 py-2 rounded-xl font-bold hover:bg-grass transition-colors cursor-pointer shadow-sm"
+          >
+            <MdSettings size={20} />
+            <span>Edit Profile</span>
+          </button>
+          <UserProfileEditModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+          />
+        </>
       ) : (
         <>
           <button className="bg-accent-1 text-background-1 px-8 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-md shadow-accent-1/20">
