@@ -109,6 +109,10 @@ export const routesRepository = {
             tx.route.update(data);
         })
     },
+    deleteRoute: async (data:Prisma.RouteDeleteManyArgs)=>{
+        const prisma = getPrisma();
+        return prisma.route.deleteMany(data);
+    }
 }
 
 export type FindRoutes = Awaited<ReturnType<typeof routesRepository.findRoutes>>;

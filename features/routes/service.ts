@@ -14,8 +14,7 @@ import { mapMethodToTransitMode } from "@/features/routes/utils";
 import { GetRoutesType } from "@/features/routes/schema";
 import { FindRoutes } from "@/features/routes/repository";
 import { PatchRouteType } from "@/features/routes/schema";
-import { th } from "zod/v4/locales";
-import { parse } from "path";
+import { DeleteRouteType } from "@/features/routes/schema";
 
 export const routesService = {
   getRoutes: async (
@@ -163,22 +162,23 @@ export const routesService = {
   },
   patchRoute: async (parsed_body: PatchRouteType) => {
     const current_nodes: Prisma.RouteNodeCreateWithoutRouteInput[] = [];
-
+    let current_node: Prisma.RouteNodeCreateWithoutRouteInput | null = null;
     if (parsed_body.items) {
       for (const item of parsed_body.items) {
         if (item.type === "waypoint") {
-          let current_node: Prisma.RouteNodeCreateWithoutRouteInput = {
+          current_node = {
             order: current_nodes.length,
             details: item.memo,
             spot: {
-              // TODO: 既存のスポットを更新する場合は、spotIdを元にupdateする必要がある。現状は、常に新規作成しているため、スポットが重複してしまう可能性がある。
-              create: {
+              connectOrCreate: {
+                where: {id: item.id},
+                create: {
                 name: item.name,
-                latitude: item.lat?? null,
-                longitude: item.lng?? null,
-                source: item.source ?? null,
-                sourceId: item.sourceId ?? null,
-              },
+                latitude: item.lat,
+                longitude: item.lng,
+                source: item.source,
+                sourceId: item.sourceId,
+              }},
             },
             transitSteps: { create: [] },
             images: {
@@ -193,6 +193,16 @@ export const routesService = {
           };
 
           current_nodes.push(current_node);
+        } else if(item.type === "transportation") {
+          if (current_node && current_node?.transitSteps?.create) {
+            (current_node?.transitSteps.create as any[]).push({
+              order: (current_node?.transitSteps.create as any[]).length,
+              mode: item.method,
+              memo: item.memo,
+              distance: item.distance,
+              duration: item.duration,
+            });
+          }
         }
       }
     }
@@ -202,22 +212,38 @@ export const routesService = {
       data: {
         // TODO:truthy判定をzodで防ぐ
         // TODO:updateの際に、クライアントが一部を空欄にして上書きしたいときに、空欄をnullとして扱うかどうかの仕様を決める必要がある。現状は、空欄にしたい項目はクライアント側でnullを送る必要がある。
-        ...(parsed_body.title && { title: parsed_body.title }),
-        ...(parsed_body.description && {
-          description: parsed_body.description,
-        }),
-        ...(parsed_body.categoryId && { categoryId: parsed_body.categoryId }),
-        ...(parsed_body.visibility && {
-          visibility: parsed_body.visibility as RouteVisibility,
-        }),
-        ...(parsed_body.thumbnailImageSrc && {
-          thumbnail: {
-            update: {
-              url: parsed_body.thumbnailImageSrc,
-            },
+        title: parsed_body.title ?? undefined,
+        description: parsed_body.description ?? undefined,
+        categoryId: parsed_body.categoryId ?? undefined,
+        visibility: parsed_body.visibility as RouteVisibility ?? undefined,
+        
+        thumbnail: {
+          update: {
+            url: parsed_body.thumbnailImageSrc ?? undefined,
+          },
+        },
+
+        ...(parsed_body.items && {
+          routeNodes: {
+            deleteMany: {},
+            create: current_nodes,
           },
         }),
       },
     });
   },
+
+  deleteRoute :async(parsed_body:DeleteRouteType, user_id:string) =>{
+    const deleted = await routesRepository.deleteRoute({
+      where:{id:parsed_body.id,
+             authorId:user_id
+            }
+    });
+
+    if(deleted.count === 0){
+      throw new Error("Notfound or Unauthorized");
+    }
+
+    return deleted;
+  }
 };

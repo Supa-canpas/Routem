@@ -11,7 +11,7 @@ import { PatchRouteSchema } from "@/features/routes/schema";
 // GET /api/v1/routems
 // 最近作成されたルートを一覧返却します
 export async function GET(req: NextRequest) {
-  return handleRequest(async () => {
+  return await handleRequest(async () => {
     const supabase = await createClient(req);
     const { data: { user }, error } = await supabase.auth.getUser();
     const safe_user = error ? null : user;
@@ -27,15 +27,13 @@ export async function GET(req: NextRequest) {
 // ルート作成用のAPI。
 
 export async function POST(req: NextRequest) {
-  await handleRequest(async () => {
+  return await handleRequest(async () => {
     const supabase = await createClient(req);
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) {
       throw new Error("Unauthorized");
     }
     const body = await req.json();
-
-    //TODO:近藤 bodyのバリデーション書いてない
     if (!body || !Array.isArray(body.items)) {
       throw new Error("Invalid body: items[] is required");
     }
@@ -48,7 +46,12 @@ export async function POST(req: NextRequest) {
 
 
 export async function PATCH(req: NextRequest) {
-  await handleRequest(async () => {
+  return await handleRequest(async () => {
+    const supabase = await createClient(req);
+    const {data:{user}, error} = await supabase.auth.getUser();
+    if(!user || error){
+        throw new Error("unauthorized")
+    }
     const body = await req.json();
     if (!body || !Array.isArray(body.items)) {
       throw new Error("Invalid body: items[] is required");
@@ -58,6 +61,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json(result, { status: 200 });
   });
 }
+
 
 
 //stringからTransitModeへのキャスト関数

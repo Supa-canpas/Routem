@@ -1,7 +1,7 @@
 import { z } from "zod";
-import dotenv from "dotenv";
 
 export const WaypointSchema = z.object({
+  id: z.string().uuid().optional(), 
   type: z.literal("waypoint"),
   name: z.string(),
   images: z.array(z.string().startsWith(process.env.MINIO_ENDPOINT || "", "Image must be a valid URL",),).max(3).optional(),
