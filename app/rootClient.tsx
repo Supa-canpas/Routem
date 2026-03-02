@@ -3,23 +3,26 @@
 import ScrollDetector from "@/app/_components/layout/templates/scrollDetector";
 import Header from "@/app/_components/layout/templates/header";
 import Main from "@/app/_components/layout/templates/main";
-import { scrollDirectionAtom } from "@/lib/client/atoms";
-import { useAtomValue } from "jotai";
+import { isMobileAtom, scrollDirectionAtom } from "@/lib/client/atoms";
+import { useAtomValue, useSetAtom } from "jotai";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 
 export default function RootClient({ children }: Readonly<{ children: React.ReactNode }>) {
 
     const scrollDirection = useAtomValue(scrollDirectionAtom)
+    const setIsMobile = useSetAtom(isMobileAtom)
     const [headerHeight, setHeaderHeight] = useState(50)
 
     const updateHeight = useCallback(() => {
-        if (window.innerWidth >= 768) {
+        const isMobile = window.innerWidth < 768;
+        setIsMobile(isMobile);
+        if (!isMobile) {
             setHeaderHeight(60)
         } else {
             setHeaderHeight(50)
         }
-    }, [])
+    }, [setIsMobile])
 
     useEffect(() => {
         updateHeight()

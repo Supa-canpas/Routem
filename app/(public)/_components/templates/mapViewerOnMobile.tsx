@@ -23,8 +23,8 @@ function MobileMap({ route }: { route: Route }) {
         if (!route || !route.routeNodes || route.routeNodes.length === 0 || !mapRef.current) return;
 
         const coords = route.routeNodes
-            .filter(node => node.spot)
-            .map(node => [node.spot.longitude, node.spot.latitude]);
+            .filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null)
+            .map(node => [node.spot.longitude as number, node.spot.latitude as number]);
 
         if (coords.length === 0) return;
 
@@ -52,8 +52,8 @@ function MobileMap({ route }: { route: Route }) {
     const lineData = useMemo(() => {
         if (!route || !route.routeNodes || route.routeNodes.length < 2) return null;
         const coordinates = route.routeNodes
-            .filter(node => node.spot)
-            .map(node => [node.spot.longitude, node.spot.latitude]);
+            .filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null)
+            .map(node => [node.spot.longitude as number, node.spot.latitude as number]);
 
         if (coordinates.length < 2) return null;
 
@@ -88,11 +88,11 @@ function MobileMap({ route }: { route: Route }) {
             mapboxAccessToken={mapboxAccessToken}
             style={{ width: "100%", height: "100%" }}
         >
-            {route.routeNodes?.filter(node => node.spot).map((node, idx) => (
+            {route.routeNodes?.filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null).map((node, idx) => (
                 <Marker
                     key={node.id}
-                    longitude={node.spot.longitude}
-                    latitude={node.spot.latitude}
+                    longitude={node.spot.longitude as number}
+                    latitude={node.spot.latitude as number}
                     anchor="bottom"
                 >
                     <div className="flex flex-col items-center">

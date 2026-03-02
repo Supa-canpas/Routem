@@ -26,8 +26,8 @@ export default function MapViewerOnLaptop(props: Props) {
         if (!focusedRoute || !focusedRoute.routeNodes || focusedRoute.routeNodes.length === 0 || !mapRef.current) return;
 
         const coords = focusedRoute.routeNodes
-            .filter(node => node.spot)
-            .map(node => [node.spot.longitude, node.spot.latitude]);
+            .filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null)
+            .map(node => [node.spot.longitude as number, node.spot.latitude as number]);
 
         if (coords.length === 0) return;
 
@@ -55,8 +55,8 @@ export default function MapViewerOnLaptop(props: Props) {
     const lineData = useMemo(() => {
         if (!focusedRoute || !focusedRoute.routeNodes || focusedRoute.routeNodes.length < 2) return null;
         const coordinates = focusedRoute.routeNodes
-            .filter(node => node.spot)
-            .map(node => [node.spot.longitude, node.spot.latitude]);
+            .filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null)
+            .map(node => [node.spot.longitude as number, node.spot.latitude as number]);
 
         if (coordinates.length < 2) return null;
 
@@ -91,11 +91,11 @@ export default function MapViewerOnLaptop(props: Props) {
                         mapboxAccessToken={mapboxAccessToken}
                         style={{ width: "100%", height: "100%" }}
                     >
-                        {focusedRoute?.routeNodes?.filter(node => node.spot).map((node, idx) => (
+                        {focusedRoute?.routeNodes?.filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null).map((node, idx) => (
                             <Marker
                                 key={node.id}
-                                longitude={node.spot.longitude}
-                                latitude={node.spot.latitude}
+                                longitude={node.spot.longitude as number}
+                                latitude={node.spot.latitude as number}
                                 anchor="bottom"
                             >
                                 <MapPin

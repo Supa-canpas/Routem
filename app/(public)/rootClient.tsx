@@ -16,20 +16,21 @@ import {IoIosArrowForward} from "react-icons/io";
 import {Route, User} from "@/lib/client/types";
 import MapViewerOnMobile from "@/app/(public)/_components/templates/mapViewerOnMobile";
 import type {RouteVisibility} from "@prisma/client";
+import { getDataFromServerWithJson } from "@/lib/client/helpers";
 
 export type selectedType = 'home' | 'photos' | 'interests' | 'recent' | 'trending'
 
 export default function RootClient() {
 
     // Mock users for demo (this week)
-    const mockUsers: User[] = [
-        { id: 'u1', name: 'Aki Tanaka', location: 'Tokyo, JP', bio: 'City explorer and coffee lover.', profileImage: '/mockImages/userIcon_1.jpg', profileBackgroundImage: '/mockImages/Nara.jpg' },
-        { id: 'u2', name: 'Kenji Sato', location: 'Osaka, JP', bio: 'Runner and ramen hunter in Kansai.', profileImage: '/mockImages/userIcon_1.jpg', profileBackgroundImage: '/mockImages/Tokyo.jpg' },
-        { id: 'u3', name: 'Serene Jane', location: 'Kyoto, JP', bio: 'History routes and hidden shrines.', profileImage: '/mockImages/userIcon_1.jpg', profileBackgroundImage: '/mockImages/userProfile.jpg' },
-        { id: 'u4', name: 'Yuta Mori', location: 'Sapporo, JP', bio: 'Snowy trails and craft beer enthusiast.', profileImage: '/mockImages/userIcon_1.jpg', profileBackgroundImage: '/mockImages/Fuji.jpg' },
-        { id: 'u5', name: 'Hana Suzuki', location: 'Fukuoka, JP', bio: 'Weekend cyclist and bakery map maker from Japan. And Ive Lived in French since last year. Its great and I love here.', profileImage: '/mockImages/userIcon_1.jpg', profileBackgroundImage: '/mockImages/Kyoto.jpg' },
-        { id: 'u6', name: 'Ren Nakamura', location: 'Nagoya, JP', bio: 'Techie who loves riverfront jogs.', profileImage: '/mockImages/userIcon_1.jpg', profileBackgroundImage: '/mockImages/Hokkaido.jpg' },
-        { id: 'u7', name: 'Sara Ito', location: 'Nara, JP', bio: 'Nature walks and deer lover in Nara.', profileImage: '/mockImages/userIcon_1.jpg', profileBackgroundImage: '/mockImages/Hokkaido.jpg' },
+    const mockUsers: any[] = [
+        { id: 'u1', name: 'Aki Tanaka', bio: 'City explorer and coffee lover.', icon: { url: '/mockImages/userIcon_1.jpg' }, background: { url: '/mockImages/Nara.jpg' } },
+        { id: 'u2', name: 'Kenji Sato', bio: 'Runner and ramen hunter in Kansai.', icon: { url: '/mockImages/userIcon_1.jpg' }, background: { url: '/mockImages/Tokyo.jpg' } },
+        { id: 'u3', name: 'Serene Jane', bio: 'History routes and hidden shrines.', icon: { url: '/mockImages/userIcon_1.jpg' }, background: { url: '/mockImages/userProfile.jpg' } },
+        { id: 'u4', name: 'Yuta Mori', bio: 'Snowy trails and craft beer enthusiast.', icon: { url: '/mockImages/userIcon_1.jpg' }, background: { url: '/mockImages/Fuji.jpg' } },
+        { id: 'u5', name: 'Hana Suzuki', bio: 'Weekend cyclist and bakery map maker from Japan. And Ive Lived in French since last year. Its great and I love here.', icon: { url: '/mockImages/userIcon_1.jpg' }, background: { url: '/mockImages/Kyoto.jpg' } },
+        { id: 'u6', name: 'Ren Nakamura', bio: 'Techie who loves riverfront jogs.', icon: { url: '/mockImages/userIcon_1.jpg' }, background: { url: '/mockImages/Hokkaido.jpg' } },
+        { id: 'u7', name: 'Sara Ito', bio: 'Nature walks and deer lover in Nara.', icon: { url: '/mockImages/userIcon_1.jpg' }, background: { url: '/mockImages/Hokkaido.jpg' } },
     ]
 
     // Fetch routes from API
@@ -44,10 +45,8 @@ export default function RootClient() {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch('/api/v1/routes?limit=12', { cache: 'no-store' });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data?.error || 'Failed to load routes');
-                if (!cancelled) setRoutes(data as Route[]);
+                const data = await getDataFromServerWithJson<Route[]>('/api/v1/routes?limit=12');
+                if (!cancelled && data) setRoutes(data);
             } catch (e: any) {
                 if (!cancelled) setError(e?.message ?? 'Failed to load');
             } finally {
@@ -60,7 +59,7 @@ export default function RootClient() {
 
     // UIのエラーを回避するためにモック記事をfetchしたroutesに追加する
     const paddedRoutes = useMemo<Route[]>(() => {
-        const base: Route[] = routes ?? [];
+        const base = Array.isArray(routes) ? routes : [];
         if (base.length >= 6) return base;
         // pad with placeholders
         const placeholdersNeeded = 6 - base.length;

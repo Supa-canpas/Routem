@@ -39,11 +39,11 @@ export const routesService = {
       ...visibility_condition,
     };
 
-    return routesRepository.findRoutes({
+    const result = await routesRepository.findRoutes({
       where,
       take: query.limit,
       orderBy: {
-        createdAt: "asc",
+        createdAt: "desc",
       },
       include: {
         category: true,
@@ -64,6 +64,7 @@ export const routesService = {
         },
       },
     });
+    return result;
   },
 
   postRoute: async (body: postRouteType, user: User) => {
@@ -81,11 +82,12 @@ export const routesService = {
 
     // 2) 各Waypointに対応するデータを加工
     const nodesData = waypointItems.map((w, order) => {
-      const spotId = w.mapboxId ?? String(w.id);
       const name = w.name ?? `Waypoint ${order + 1}`;
       const lat = typeof w.lat === "number" ? w.lat : 0;
       const lng = typeof w.lng === "number" ? w.lng : 0;
       const details = w.memo ?? "";
+      const source = w.source?.toLowerCase() === "mapbox" ? "MAPBOX" : "USER";
+      const sourceId = w.sourceId;
 
       // 該当するwaypointの後のTransportationアイテムを取得
       const waypointIndexInItems = items.findIndex((it: any) => it.id === w.id);
@@ -121,11 +123,11 @@ export const routesService = {
         order,
         details,
         spot: {
-          id: spotId,
           name,
           latitude: lat,
           longitude: lng,
-          source: w.mapboxId ? "mapbox" : "user",
+          source,
+          sourceId
         },
         transitSteps: transitStepsData,
         images: Array.isArray(w.images)

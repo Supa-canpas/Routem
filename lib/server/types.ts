@@ -2,9 +2,19 @@ import { Prisma } from '@prisma/client';
 
 
 
+export type RouteNode = Prisma.RouteNodeGetPayload<{
+    include: {
+        spot: true,
+        images: true,
+        transitSteps: true
+    }
+}>
+export type TransitStep = Prisma.TransitStepGetPayload<{
+}>
+
 export type Route = Prisma.RouteGetPayload<{
     include: {
-        author: { include: { profileImage: true } },
+        author: { include: { icon: true } },
         thumbnail: true,
         likes: true,
         views: true,
@@ -17,14 +27,4 @@ export type Route = Prisma.RouteGetPayload<{
         },
         category: true,
     }
-}>
-
-export type RouteNode = Prisma.RouteNodeGetPayload<{
-    include: {
-        spot: true,
-        images: true,
-        transitSteps: true
-    }
-}>
-export type TransitStep = Prisma.TransitStepGetPayload<{
 }>

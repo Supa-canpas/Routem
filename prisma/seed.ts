@@ -4,13 +4,16 @@ const prisma = new PrismaClient()
 
 async function main() {
     const users =  [
-        {name: 'lychee'},
-        {name: 'avocado'}
+        {id: '00000000-0000-0000-0000-000000000001', name: 'lychee'},
+        {id: '00000000-0000-0000-0000-000000000002', name: 'avocado'}
     ]
 
     for(const user of users) {
-        await prisma.user.create({
-            data: {
+        await prisma.user.upsert({
+            where: { id: user.id },
+            update: { name: user.name },
+            create: {
+                id: user.id,
                 name: user.name,
             }
         })

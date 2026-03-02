@@ -12,6 +12,8 @@ export const routesRepository = {
         const prisma = getPrisma();
         const { title, description, category, visibility, userId, nodes, thumbnail } = data;
 
+        console.log(nodes)
+
         return prisma.$transaction(async (tx) => {
             // 1) Route を作成
             const route = await tx.route.create({
@@ -51,8 +53,8 @@ export const routesRepository = {
             // 2) RouteNode とその TransitSteps, Spot, Images を作成
             for (const n of nodes) {
                 // spotを更新、ない場合は作成
-                await tx.spot.upsert({
-                    where: {source_sourceId: { sourceId: n.spot.sourceId as string, source: 'MAPBOX'}},
+                const spot_upserted = await tx.spot.upsert({
+                    where: {source_sourceId: { sourceId: n.spot.sourceId, source: n.spot.source}},
                     update: {
                         name: n.spot.name,
                         latitude: n.spot.latitude,
@@ -71,7 +73,7 @@ export const routesRepository = {
                             connect: { id: route.id },
                         },
                         spot: {
-                            connect: { id: n.spot.id },
+                            connect: { id: spot_upserted.id },
                         },
                         details: n.details,
                         transitSteps: {

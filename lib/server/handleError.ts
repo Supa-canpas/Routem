@@ -4,12 +4,12 @@ import { ZodError } from "zod";
 export async function handleError(error: unknown): Promise<Response> {
     if (error instanceof ZodError) {
         return Response.json(
-            {message: error.message},
+            {message: error.message, code: "ZOD_ERROR"},
             {status: 400}
         )
     }
     return Response.json(
-        {message: "Internal Server Error"},
+        {message: "Internal Server Error", code: "INTERNAL_SERVER_ERROR"},
         {status: 500}
     )
     

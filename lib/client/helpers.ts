@@ -11,7 +11,7 @@ export async function postDataToServerWithJson<T>(url: string, obj: object): Pro
 
     try {
         const res = await fetch(url, params)
-        let json
+        let json: any
         try {
             json = await res.json()
         } catch (error) {
@@ -19,15 +19,10 @@ export async function postDataToServerWithJson<T>(url: string, obj: object): Pro
             else throw {message: '不明なエラー', code: 'UNKNOWN_ERROR'}
         }
         if (!res.ok) {
-            throw {message: json.error?.message || '不明なエラー', code: json.error?.code || 'UNKNOWN_ERROR'}
+            throw {message: json.message || '不明なエラー', code: json.code || 'UNKNOWN_ERROR'}
         }
 
-
-        if (!!json) {
-            const {error, ...jsonWithOutError} = json
-            return jsonWithOutError as T
-        }
-        return null
+        return json as T
     } catch (error) {
         if (error instanceof TypeError) {
             throw {message: 'ネットワークエラーが発生しました。', code: 'NETWORK_ERROR'} as ErrorScheme
@@ -46,7 +41,7 @@ export async function getDataFromServerWithJson<T>(url: string): Promise<T | nul
 
     try {
         const res = await fetch(url, params)
-        let json
+        let json: any
         try {
             json = await res.json()
         } catch (error) {
@@ -54,15 +49,10 @@ export async function getDataFromServerWithJson<T>(url: string): Promise<T | nul
             else throw {message: '不明なエラー', code: 'UNKNOWN_ERROR'}
         }
         if (!res.ok) {
-            throw {message: json.error?.message || '不明なエラー', code: json.error?.code || 'UNKNOWN_ERROR'}
+            throw {message: json.message || '不明なエラー', code: json.code || 'UNKNOWN_ERROR'}
         }
 
-
-        if (!!json) {
-            const {error, ...jsonWithOutError} = json
-            return jsonWithOutError as T
-        }
-        return null
+        return json as T
     } catch (error) {
         if (error instanceof TypeError) {
             throw {message: 'ネットワークエラーが発生しました。', code: 'NETWORK_ERROR'} as ErrorScheme

@@ -7,3 +7,5 @@ import {atom} from "jotai";
 export const scrollDirectionAtom = atom<'up' | 'down' | 'left' | 'right'>('up')
 
 export const headerHeightAtom = atom<number>(60)
+
+export const isMobileAtom = atom<boolean>(false)

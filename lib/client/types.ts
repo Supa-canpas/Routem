@@ -22,7 +22,7 @@ export type User = Prisma.UserGetPayload<{
 }>
 
 export type Waypoint = {
-    id: string;
+    id?: string;
     type: 'waypoint';
     name: string;
     images?: string[]; // 経由地の画像URL（最大3枚）
@@ -30,11 +30,12 @@ export type Waypoint = {
     order: number; // 並び順
     lat?: number;
     lng?: number;
-    mapboxId?: string;
+    source: 'MAPBOX' | 'USER'
+    sourceId?: string;
 };
 
 export type Transportation = {
-    id: string;
+    id?: string;
     type: 'transportation';
     method: 'WALK' | 'TRAIN' | 'BUS' | 'CAR' | 'OTHER'; // 移動手段
     memo: string; // 移動に関するメモ（乗り換え情報など）
