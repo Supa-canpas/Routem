@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       throw new Error("Invalid body: items[] is required");
     }
     const parsed_body = await validateParams(PostRouteSchema, body);
-    const result = await routesService.postRoute(parsed_body, user);
+    const result = await routesService.postRoute(parsed_body, user.id);
     return NextResponse.json(result, { status: 201 });
   });
 }
