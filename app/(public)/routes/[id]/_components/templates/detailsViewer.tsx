@@ -5,6 +5,7 @@ import { MessageSquare, BookOpen } from "lucide-react";
 import { HiHeart } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
 import { ReactNode, RefObject } from "react";
+import { User } from "@supabase/supabase-js";
 import RelatedArticles from "./relatedArticles";
 import WaypointItem from "../ingredients/waypointItem";
 import TransitItem from "../ingredients/transitItem";
@@ -23,6 +24,7 @@ type Props = {
   infoTab?: "comments" | "related";
   setInfoTab?: (tab: "comments" | "related") => void;
   isMobile: boolean;
+  currentUser?: User | null;
   scrollContainerRef: RefObject<HTMLDivElement | null>;
   itemRefs: RefObject<(HTMLDivElement | null)[]>;
 };
@@ -35,9 +37,12 @@ export default function DetailsViewer({
   infoTab = "comments",
   setInfoTab,
   isMobile,
+  currentUser,
   scrollContainerRef,
   itemRefs,
 }: Props) {
+  const isLikedByMe = !!(currentUser && route.likes?.some((like) => like.userId === currentUser.id));
+
   return (
     <div
       ref={scrollContainerRef}
@@ -79,7 +84,12 @@ export default function DetailsViewer({
       {/* ルートを気に入った場合のいいねボタン */}
       <div className="flex flex-col items-center gap-6">
         <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-foreground-1">Did you enjoy this route?</span>
-        <LikeButton likesCount={route.likes?.length ?? 0} variant="large" />
+        <LikeButton 
+          routeId={route.id} 
+          initialLikesCount={route.likes?.length ?? 0} 
+          initialIsLiked={isLikedByMe}
+          variant="large" 
+        />
       </div>
 
       {/* 情報エリア (投稿者, カテゴリー, タグ, コメント/関連記事) */}
@@ -138,7 +148,7 @@ export default function DetailsViewer({
             <div className="min-h-[400px]">
               <AnimatePresence mode="wait">
                 {!isMobile || infoTab === "comments" ? (
-                  <CommentSection key="comments" isMobile={isMobile} />
+                  <CommentSection key="comments" isMobile={isMobile} routeId={route.id} />
                 ) : (
                   <motion.div
                     key="related"

@@ -44,6 +44,13 @@ export type Transportation = {
     distance?: number; // 移動距離（km）
 };
 
+export type Comment = Prisma.CommentGetPayload<{
+    include: {
+        user: { select: { id: true, name: true, icon: true } },
+        likes: true,
+    }
+}>
+
 export interface ErrorScheme {
     message: string;
     code: string;

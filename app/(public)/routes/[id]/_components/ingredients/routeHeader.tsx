@@ -50,7 +50,10 @@ export default function RouteHeader({ route }: RouteHeaderProps) {
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-4">
-            <LikeButton likesCount={route.likes?.length ?? 0} />
+            <LikeButton 
+              routeId={route.id} 
+              initialLikesCount={route.likes?.length ?? 0} 
+            />
             <div className="flex items-center text-foreground-1">
               <span className="text-[10px] font-bold uppercase tracking-[0.15em]">
                 {route.views?.length ?? 0} views

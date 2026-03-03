@@ -1,6 +1,7 @@
 "use client";
 
 import { Route } from "@/lib/client/types";
+import { User } from "@supabase/supabase-js";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import MapViewer from "./_components/templates/mapViewer";
 import DiagramViewer from "./_components/templates/diagramViewer";
@@ -14,6 +15,7 @@ import { motion } from "framer-motion";
 
 type Props = {
   route: Route;
+  currentUser?: User | null;
 };
 
 // RouteItemのフラット化された配列を作成するヘルパー
@@ -43,7 +45,7 @@ function getFlattenedItems(route: Route) {
   return items;
 }
 
-export default function RootClient({ route }: Props) {
+export default function RootClient({ route, currentUser }: Props) {
   const items = useMemo(() => getFlattenedItems(route), [route]);
   const [viewMode, setViewMode] = useState<"diagram" | "details" | "map">("details");
   const [infoTab, setInfoTab] = useState<"comments" | "related">("comments");
@@ -123,6 +125,7 @@ export default function RootClient({ route }: Props) {
           {/* DETAILS VIEW */}
           <DetailsViewer 
             route={route}
+            currentUser={currentUser}
             items={items}
             focusIndex={focusIndex}
             viewMode={viewMode}

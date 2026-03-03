@@ -80,7 +80,14 @@ export default function RootClient() {
             categoryId: 1,
             category: { id: 1, name: 'General' },
             thumbnail: { id: `thumb-${i}`, url: '/mockImages/Kyoto.jpg', type: 'ROUTE_THUMBNAIL', status: 'ADOPTED', createdAt: new Date(), updatedAt: new Date(), uploaderId: mockUsers[i % mockUsers.length].id, routeNodeId: null, userProfileId: null, routeThumbId: `placeholder-${i}` } as any,
-            likes: Array.from({ length: 10 + i * 5 }).map((_, j) => ({ id: `like-${i}-${j}`, createdAt: new Date(), target: 'ROUTE', routeId: `placeholder-${i}`, userId: `u${(j % 7) + 1}` })),
+            likes: Array.from({ length: 10 + i * 5 }).map((_, j) => ({ 
+                id: `like-${i}-${j}`, 
+                createdAt: new Date(), 
+                target: 'ROUTE' as const, 
+                routeId: `placeholder-${i}`, 
+                userId: `u${(j % 7) + 1}`,
+                commentId: null
+            })),
             views: Array.from({ length: 100 + i * 20 }).map((_, j) => ({ id: `view-${i}-${j}`, createdAt: new Date(), target: 'ROUTE', routeId: `placeholder-${i}`, userId: null })),
             routeNodes: [
                 {

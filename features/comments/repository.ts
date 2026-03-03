@@ -30,7 +30,38 @@ export const commentsRepository = {
             where: {
                 id: without ? {notIn: without} : undefined,
             },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        icon: true,
+                    }
+                }
+            },
             orderBy,
+        });
+    },
+
+    getCommentsByRouteId: async (routeId: string) => {
+        const prisma = getPrisma();
+        return prisma.comment.findMany({
+            where: {
+                routeId,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        icon: true,
+                    }
+                },
+                likes: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
         });
     },
 
