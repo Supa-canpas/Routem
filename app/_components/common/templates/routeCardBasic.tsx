@@ -10,13 +10,13 @@ type Props = {
 }
 export default function RouteCardBasic(props: Props) {
     return (
-        <Link href={`/routes/${props.route.id}`} className={'group w-full h-[320px] overflow-hidden rounded-2xl flex shadow-sm hover:shadow-2xl transition-shadow duration-700 bg-background-1'}>
-            <div className={'flex-1 h-full relative overflow-hidden'}>
+        <Link href={`/routes/${props.route.id}`} className={'group w-full h-[320px] overflow-hidden rounded-2xl flex shadow-sm hover:shadow-2xl transition-shadow duration-700 bg-background-0 p-2 gap-2'}>
+            <div className={'flex-1 h-full relative overflow-hidden rounded-xl'}>
                 {/* オーバーレイ（視認性向上） - Smoother blur gradient with masked blur to avoid sharp boundary */}
-                <div className="absolute inset-0 z-10
-                    backdrop-blur-xl bg-black/40
-                    [mask-image:linear-gradient(to_top,black_40%,transparent_100%)]
-                    [-webkit-mask-image:linear-gradient(to_top,black_40%,transparent_100%)]" />
+                <div className="absolute inset-0 z-10 rounded-xl overflow-hidden
+                    backdrop-blur-md bg-black/35
+                    [mask-image:linear-gradient(to_top,black,transparent)]
+                    [-webkit-mask-image:linear-gradient(to_top,black,transparent)]" />
                 <Image
                     src={props.route.thumbnail?.url ?? '/map.png'}
                     alt={props.route.title}
@@ -31,7 +31,7 @@ export default function RouteCardBasic(props: Props) {
                     </div>
                 </div>
             </div>
-            <div className={'w-[45%] h-full min-w-[160px] flex flex-col gap-4 p-6 bg-background-1'}>
+            <div className={'w-[45%] h-full min-w-[160px] flex flex-col gap-4 p-6 bg-background-1 rounded-xl'}>
                 <div className="w-full flex flex-col gap-3">
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 rounded-full">
@@ -62,12 +62,12 @@ export default function RouteCardBasic(props: Props) {
                     </div>
                 </div>
                 <div className="w-full grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-accent-1/10 border border-accent-1/20 p-2 flex flex-col justify-center">
-                        <span className="block text-accent-1 text-[9px] font-bold uppercase tracking-[0.2em] mb-0.5">Stops</span>
+                    <div className="rounded-lg bg-background-0 p-2 flex flex-col justify-center">
+                        <span className="block text-foreground-0 text-[9px] font-bold uppercase tracking-[0.2em] mb-0.5">Stops</span>
                         <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-0 truncate">{props.route.routeNodes.length} pts</span>
                     </div>
-                    <div className="rounded-lg bg-accent-0/10 border border-accent-0/20 p-2 flex flex-col justify-center">
-                        <span className="block text-accent-0 text-[9px] font-bold uppercase tracking-[0.2em] mb-0.5">Category</span>
+                    <div className="rounded-lg bg-background-0 p-2 flex flex-col justify-center">
+                        <span className="block text-foreground-0 text-[9px] font-bold uppercase tracking-[0.2em] mb-0.5">Category</span>
                         <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-foreground-0 truncate">{props.route.category?.name}</span>
                     </div>
                 </div>

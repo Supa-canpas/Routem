@@ -30,10 +30,10 @@ export default function FeaturedRouteCard(props: Props) {
         />
 
         {/* Gradient Mask Overlay (Top to Bottom) with Smooth Blur - Inside the image container */}
-        <div className="absolute inset-0 rounded-lg
-      backdrop-blur-xl bg-black/40
-      [mask-image:linear-gradient(to_bottom,transparent_20%,black_90%)]
-      [-webkit-mask-image:linear-gradient(to_bottom,transparent_20%,black_90%)]" />
+        <div className="absolute inset-0 rounded-lg overflow-hidden
+      backdrop-blur-md bg-black/35
+      [mask-image:linear-gradient(to_bottom,transparent,black)]
+      [-webkit-mask-image:linear-gradient(to_bottom,transparent,black)]" />
 
         {/* Content Container (Padding around edges) - Inside the image container */}
         <div className="absolute inset-0 p-4 flex flex-col justify-between text-white">

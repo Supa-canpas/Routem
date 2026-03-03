@@ -77,12 +77,12 @@ export default function RouteViewer(props: Props) {
             <div className="mt-4 flex flex-col gap-3">
               <h3 className="text-lg font-semibold text-foreground-1">Route Info</h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="p-3 rounded-lg bg-accent-1/10 border border-grass/10">
-                  <span className="block text-accent-1 text-[10px] font-bold uppercase tracking-[0.3em]">Created</span>
+                <div className="p-3 rounded-lg bg-background-0 border border-grass/10">
+                  <span className="block text-foreground-0 text-[10px] font-bold uppercase tracking-[0.3em]">Created</span>
                   <span className="font-medium text-foreground-1">{new Date(route.createdAt).toLocaleDateString()}</span>
                 </div>
-                <div className="p-3 rounded-lg bg-accent-1/10 border border-grass/10">
-                  <span className="block text-accent-1 text-[10px] font-bold uppercase tracking-[0.3em]">Waypoints</span>
+                <div className="p-3 rounded-lg bg-background-0 border border-grass/10">
+                  <span className="block text-foreground-0 text-[10px] font-bold uppercase tracking-[0.3em]">Waypoints</span>
                   <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-foreground-1">{route.routeNodes.length} stops</span>
                 </div>
               </div>
