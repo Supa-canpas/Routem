@@ -12,12 +12,15 @@ interface UserProfileEditModalProps {
 }
 
 export default function UserProfileEditModal({ isOpen, onClose }: UserProfileEditModalProps) {
-  const { user, setUser } = userStore()
+  const { user, edit } = userStore()
   const [name, setName] = useState(user.name || '')
   const [bio, setBio] = useState(user.bio || '')
   const [iconUrl, setIconUrl] = useState(user.icon?.url || '')
   const [bgUrl, setBgUrl] = useState(user.background?.url || '')
+  const [iconId, setIconId] = useState<string | null>(null)
+  const [bgId, setBgId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const iconInputRef = useRef<HTMLInputElement>(null)
   const bgInputRef = useRef<HTMLInputElement>(null)
@@ -28,13 +31,18 @@ export default function UserProfileEditModal({ isOpen, onClose }: UserProfileEdi
       setBio(user.bio || '')
       setIconUrl(user.icon?.url || '')
       setBgUrl(user.background?.url || '')
+      setIconId(null)
+      setBgId(null)
     }
   }, [isOpen, user])
 
-  const handleImageUpload = async (file: File, type: 'user-profiles') => {
+  const handleImageUpload = async (file: File, type: 'user-profiles', context?: 'icon' | 'background') => {
     try {
-      const res = await fetch(`/api/v1/uploads?fileName=${encodeURIComponent(file.name)}&contentType=${encodeURIComponent(file.type)}&type=${type}`)
-      const { uploadUrl, publicUrl } = await res.json()
+      let url = `/api/v1/uploads?fileName=${encodeURIComponent(file.name)}&contentType=${encodeURIComponent(file.type)}&type=${type}`
+      if (context) url += `&context=${context}`
+      
+      const res = await fetch(url)
+      const { uploadUrl, publicUrl, imageId } = await res.json()
 
       await fetch(uploadUrl, {
         method: 'PUT',
@@ -44,7 +52,7 @@ export default function UserProfileEditModal({ isOpen, onClose }: UserProfileEdi
         },
       })
 
-      return publicUrl
+      return { publicUrl, imageId }
     } catch (error) {
       console.error('Image upload failed:', error)
       return null
@@ -54,28 +62,25 @@ export default function UserProfileEditModal({ isOpen, onClose }: UserProfileEdi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
 
-    try {
-      const body: any = { name, bio }
-      if (iconUrl !== user.icon?.url) body.icon = iconUrl
-      if (bgUrl !== user.background?.url) body.background = bgUrl
+    const profile: any = { name, bio }
+    if (iconId) profile.icon = iconId
+    if (bgId) profile.background = bgId
 
-      const res = await fetch('/api/v1/users/me', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (res.ok) {
-        const updatedUser = await res.json()
-        setUser(updatedUser)
+    edit(
+      profile,
+      () => setIsSubmitting(true),
+      (user) => {
+        console.log('User updated:', user)
+        setIsSubmitting(false)
         onClose()
+      },
+      (err) => {
+        setIsSubmitting(false)
+        setError(err?.message || 'Failed to update profile')
       }
-    } catch (error) {
-      console.error('Update profile failed:', error)
-    } finally {
-      setIsSubmitting(false)
-    }
+    )
   }
 
   return (
@@ -134,8 +139,11 @@ export default function UserProfileEditModal({ isOpen, onClose }: UserProfileEdi
                   onChange={async (e) => {
                     const file = e.target.files?.[0]
                     if (file) {
-                      const url = await handleImageUpload(file, 'user-profiles')
-                      if (url) setBgUrl(url)
+                      const res = await handleImageUpload(file, 'user-profiles', 'background')
+                      if (res) {
+                        setBgUrl(res.publicUrl)
+                        setBgId(res.imageId)
+                      }
                     }
                   }}
                 />
@@ -170,8 +178,11 @@ export default function UserProfileEditModal({ isOpen, onClose }: UserProfileEdi
                     onChange={async (e) => {
                       const file = e.target.files?.[0]
                       if (file) {
-                        const url = await handleImageUpload(file, 'user-profiles')
-                        if (url) setIconUrl(url)
+                        const res = await handleImageUpload(file, 'user-profiles', 'icon')
+                        if (res) {
+                          setIconUrl(res.publicUrl)
+                          setIconId(res.imageId)
+                        }
                       }
                     }}
                   />

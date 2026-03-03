@@ -13,7 +13,7 @@ export default function Header () {
 
     return (
         <header
-            className={`block sticky top-0 w-full h-[50px] lg:h-[60px] bg-background-1 border-b border-grass box-border z-[100]`}
+            className={`block sticky top-0 w-full h-[50px] md:h-[60px] bg-background-1 border-b border-grass box-border z-[100]`}
         >
             <div className={'px-6 w-full h-full flex items-center max-w-[1440px] mx-auto gap-1 sm:gap-2 md:gap-4 lg:gap-8'}>
                 {!isSearchMode ? (

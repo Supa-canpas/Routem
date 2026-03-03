@@ -7,21 +7,11 @@ import {User} from "@/lib/client/types";
 
 export default function UserInitializer() {
 
-    const setUser = userStore(state => state.setUser)
+    const login = userStore(state => state.login)
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const user = await getDataFromServerWithJson<User>('/api/v1/users/me')
-
-            console.log(user)
-
-            if (user && 'id' in user) {
-                setUser(user)
-            }
-        }
-
-        fetchUser()
-    }, [setUser])
+        login()
+    }, [login])
 
     return null
 }

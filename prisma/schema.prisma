@@ -36,6 +36,7 @@ enum Gender {
 model Image {
   id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   url       String
+  key       String? // S3上のパス (例: "user-profiles/123456-icon.png")
   status    ImageStatus @default(DRAFT)
   type      ImageType
   createdAt DateTime    @default(now())

@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { userStore } from '@/lib/client/stores/userStore'
+import { User } from '@/lib/client/types'
+import { getDataFromServerWithJson } from '@/lib/client/helpers'
 import UserProfileHeader from './_components/templates/userProfileHeader'
 import UserProfileContent from './_components/templates/userProfileContent'
 
@@ -61,26 +63,70 @@ const MOCK_ROUTES = [
 export default function RootClient({ id }: { id: string }) {
   const router = useRouter()
   const currentUser = userStore(state => state.user)
+  const [targetUser, setTargetUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'routes' | 'likes'>('routes')
 
+  const isOwnPage = currentUser?.id === id
+  const displayUser = isOwnPage ? currentUser : targetUser
 
+  useEffect(() => {
+    if (isOwnPage) {
+      setIsLoading(false)
+      return
+    }
+
+    const fetchUser = async () => {
+      setIsLoading(true)
+      try {
+        const user = await getDataFromServerWithJson<User>(`/api/v1/users/${id}`)
+        setTargetUser(user)
+      } catch (error) {
+        console.error('Failed to fetch user:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUser()
+  }, [id, isOwnPage])
+
+  if (isLoading && !isOwnPage) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-grass"></div>
+      </div>
+    )
+  }
+
+  if (!displayUser && !isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <p className="text-xl font-bold">User not found</p>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full h-fit">
 
       <UserProfileHeader
-        name={currentUser?.name}
-        bio={currentUser?.bio as string}
-        iconUrl={currentUser?.icon?.url}
-        bgUrl={currentUser?.background?.url}
-        isOwnPage={currentUser?.id === id}
+        name={displayUser?.name}
+        bio={displayUser?.bio as string}
+        iconUrl={displayUser?.icon?.url}
+        bgUrl={displayUser?.background?.url}
+        isOwnPage={isOwnPage}
       />
 
       <UserProfileContent
         activeTab={activeTab}
         onChangeTab={setActiveTab}
-        stats={{ routes: 12, followers: '1.2k', following: '450' }}
-        routes={MOCK_ROUTES}
+        stats={{ 
+          routes: displayUser?.routes?.length || 0, 
+          followers: '0', 
+          following: '0' 
+        }}
+        routes={displayUser?.routes || []}
       />
 
     </div>

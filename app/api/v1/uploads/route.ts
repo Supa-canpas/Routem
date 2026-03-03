@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getS3Client } from "@/lib/config/server";
+import { getS3Client, getPrisma } from "@/lib/config/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { createClient } from "@/lib/auth/supabase/server";
 
 // 共通: バケット名と公開URLを正規化して生成
 function buildPublicUrl(bucket: string, key: string) {
@@ -29,6 +30,9 @@ function ensureExtension(name: string, defaultExt: string = '.webp') {
  */
 export async function GET(req: NextRequest) {
   try {
+    const supabase = await createClient(req);
+    const { data: { user } } = await supabase.auth.getUser();
+
     const url = new URL(req.url);
     const fileName = url.searchParams.get('fileName') || `upload-${Date.now()}`;
     const contentType = url.searchParams.get('contentType') || 'image/webp';
@@ -36,9 +40,26 @@ export async function GET(req: NextRequest) {
 
     // ディレクトリの決定
     let directory = 'others';
-    if (type === 'route-thumbnails') directory = 'route-thumbnails';
-    else if (type === 'user-profiles') directory = 'user-profiles';
-    else if (type === 'node-images') directory = 'node-images';
+    let imageType: 'USER_ICON' | 'USER_BG' | 'ROUTE_THUMBNAIL' | 'NODE_IMAGE' | 'OTHER' = 'OTHER';
+
+    if (type === 'route-thumbnails') {
+      directory = 'route-thumbnails';
+      imageType = 'ROUTE_THUMBNAIL';
+    } else if (type === 'user-profiles') {
+      directory = 'user-profiles';
+      // user-profiles の場合は context 等で細かく分けたいが、一旦簡易的に
+      imageType = 'OTHER'; 
+    } else if (type === 'node-images') {
+      directory = 'node-images';
+      imageType = 'NODE_IMAGE';
+    }
+
+    // ユーザープロフィールの場合はより詳細な種別判定（任意）
+    if (type === 'user-profiles') {
+        const context = url.searchParams.get('context');
+        if (context === 'icon') imageType = 'USER_ICON';
+        else if (context === 'background') imageType = 'USER_BG';
+    }
 
     const Bucket = process.env.MINIO_BUCKET || 'rtmimages';
     const Key = `${directory}/${Date.now()}-${ensureExtension(fileName)}`;
@@ -48,7 +69,19 @@ export async function GET(req: NextRequest) {
     const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 });
 
     const publicUrl = buildPublicUrl(Bucket, Key);
-    return NextResponse.json({ uploadUrl, key: Key, publicUrl }, { status: 200 });
+
+    // DBにDRAFT状態でレコード作成
+    const image = await getPrisma().image.create({
+      data: {
+        url: publicUrl,
+        key: Key,
+        status: 'DRAFT',
+        type: imageType,
+        uploaderId: user?.id || null,
+      }
+    });
+
+    return NextResponse.json({ uploadUrl, key: Key, publicUrl, imageId: image.id }, { status: 200 });
   } catch (e: any) {
     console.error('/api/v1/uploads GET error', e);
     return NextResponse.json({ error: e?.message ?? 'Internal Server Error' }, { status: 500 });

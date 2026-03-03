@@ -35,9 +35,11 @@ export const CreateUserSchema = UserSchema.omit({ id: true });
 export const UpdateUserSchema = UserSchema.pick({
   name: true,
   bio: true,
-  icon: true,
-  background: true,
 })
+  .extend({
+    icon: z.string().optional(), // imageId を受け取る
+    background: z.string().optional(), // imageId を受け取る
+  })
   .partial()
   .strict();
 
