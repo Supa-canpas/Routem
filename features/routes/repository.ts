@@ -5,7 +5,6 @@ import { Prisma } from "@prisma/client";
 export const routesRepository = {
     findRoutes: async (args: Prisma.RouteFindManyArgs) => {
         const returned = await getPrisma().route.findMany(args);
-        console.log(returned)
         return returned
     },
     createRoute: async (data: any) => {

@@ -73,12 +73,12 @@ export default function RouteCardGraphical(props: Props) {
 
             {/* Duration and Cost area (Button-like) */}
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 backdrop-blur-md rounded-full border border-accent-1/60 shadow-inner bg-[#232323] text-white/90 transition-colors">
-                <HiClock className="w-4 h-4 text-accent-1" />
+              <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 backdrop-blur-md rounded-full shadow-inner bg-background-1 text-foreground-0 transition-colors">
+                <HiClock className="w-4 h-4 text-foreground-0" />
                 <span className="text-[10px] font-bold tracking-[0.3em] uppercase">2.5h</span>
               </div>
-              <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 backdrop-blur-md rounded-full border border-accent-0/60 shadow-inner bg-[#232323] text-white/90 transition-colors">
-                <HiBanknotes className="w-4 h-4 text-accent-0" />
+              <div className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 backdrop-blur-md rounded-full shadow-inner bg-background-1 text-foreground-0 transition-colors">
+                <HiBanknotes className="w-4 h-4 text-foreground-0" />
                 <span className="text-[10px] font-bold tracking-[0.3em] uppercase">¥3,500</span>
               </div>
             </div>
