@@ -38,8 +38,8 @@ export default function MapViewer({ route, focusIndex, items }: Props) {
 
     // 初期表示またはfocusIndexがWaypoint以外の場合（全体を表示）
     const coords = route.routeNodes
-      .filter(node => node.spot)
-      .map(node => [node.spot.longitude, node.spot.latitude]);
+      .filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null)
+      .map(node => [node.spot.longitude as number, node.spot.latitude as number]);
 
     if (coords.length === 0) return;
 
@@ -67,8 +67,8 @@ export default function MapViewer({ route, focusIndex, items }: Props) {
   const lineData = useMemo(() => {
     if (!route || !route.routeNodes || route.routeNodes.length < 2) return null;
     const coordinates = route.routeNodes
-      .filter(node => node.spot)
-      .map(node => [node.spot.longitude, node.spot.latitude]);
+      .filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null)
+      .map(node => [node.spot.longitude as number, node.spot.latitude as number]);
 
     if (coordinates.length < 2) return null;
 
@@ -101,11 +101,11 @@ export default function MapViewer({ route, focusIndex, items }: Props) {
         mapboxAccessToken={mapboxAccessToken}
         style={{ width: "100%", height: "100%" }}
       >
-        {route.routeNodes?.filter(node => node.spot).map((node, idx) => (
+        {route.routeNodes?.filter(node => node.spot && node.spot.longitude !== null && node.spot.latitude !== null).map((node, idx) => (
           <Marker
             key={node.id}
-            longitude={node.spot.longitude}
-            latitude={node.spot.latitude}
+            longitude={node.spot.longitude as number}
+            latitude={node.spot.latitude as number}
             anchor="bottom"
           >
             <div className="flex flex-col items-center">

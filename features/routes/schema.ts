@@ -2,7 +2,6 @@ import { z } from "zod";
 import { WaypointSchema, TransportationSchema } from "../database_schema";
 import { create } from "domain";
 
-
 export const GetRoutesSchema = z.object({
     authorId: z.string().uuid().optional(),
     categoryId: z.number().optional(),
@@ -32,3 +31,9 @@ export const PatchRouteSchema = z.object({
     visibility: z.enum(["PUBLIC", "PRIVATE"]).optional(),
 })
 export type PatchRouteType = z.infer<typeof PatchRouteSchema>;
+
+export const DeleteRouteSchema = z.object({
+    id:z.string().uuid("Invalid route ID"),
+})
+
+export type DeleteRouteType = z.infer<typeof DeleteRouteSchema>;

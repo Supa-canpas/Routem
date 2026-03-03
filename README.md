@@ -39,3 +39,7 @@ DBカラム名：キャメルケース
 - できるだけ使用する直前で宣言
 - 型なども同じであるが、特に理由がない場合は、アルファベット順で並べる
 →ctrl shift P　でコマンドパレットを開き、sort ascendingで選択範囲を並び替えることができる
+
+# vercelでの運用
+- vercelでは異なるenvを使用することで、仮運用しています。
+(MINIO系→Supabase storage,DATABASE_URL等→Supabaseのエンドポイント)

@@ -3,6 +3,7 @@
 import { PrismaClient } from "@prisma/client";
 import { S3Client } from "@aws-sdk/client-s3";
 import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 
 let prisma: PrismaClient | null = null;
@@ -10,10 +11,20 @@ let s3Client: S3Client | null = null;
 
 export function getPrisma() {
     if (prisma) return prisma;
-    const adapter = new PrismaPg({
-        connectionString: process.env.DATABASE_URL,
-    });
+
+    const dbType = process.env.DB_TYPE || 'local';
+    const connectionString = dbType === 'vercel' 
+        ? process.env.VERCEL_DATABASE_URL 
+        : process.env.LOCAL_DATABASE_URL;
+
+    if (!connectionString) {
+        throw new Error(`Database connection string for type '${dbType}' is not defined.`);
+    }
+
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
     prisma = new PrismaClient({ adapter });
+    
     return prisma;
 }
 

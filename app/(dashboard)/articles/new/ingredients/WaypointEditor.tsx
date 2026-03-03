@@ -31,7 +31,7 @@ export default function WaypointEditor({ item, onUpdate }: WaypointEditorProps) 
     // item.name が外から更新された場合に追従（例: 選択切り替え時）
     useEffect(() => {
         setQuery(item.name ?? "");
-    }, [item.id, item.name]);
+    }, [item.name]);
 
     // クリックアウトで候補を閉じる
     useEffect(() => {
@@ -89,7 +89,7 @@ export default function WaypointEditor({ item, onUpdate }: WaypointEditorProps) 
                     name,
                     lat,
                     lng,
-                    mapboxId: feature.properties.mapbox_id,
+                    sourceId: feature.properties.mapbox_id,
                 });
             }
         } catch (err) {

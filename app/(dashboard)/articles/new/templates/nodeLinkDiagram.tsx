@@ -11,11 +11,11 @@ import { motion } from "framer-motion";
 
 interface NodeLinkDiagramProps {
     items: RouteItem[];
-    selectedItemId: string | null;
-    onSelectItem: (id: string) => void;
+    selectedIndex: number;
+    onSelectItem: (index: number) => void;
     onAddWaypoint: () => void;
-    onDeleteWaypoint: (id: string) => void;
-    onAddItem: (afterId: string, type: 'waypoint' | 'transportation') => void;
+    onDeleteWaypoint: (index: number) => void;
+    onAddItem: (afterIndex: number, type: 'waypoint' | 'transportation') => void;
     // New header actions
     onOpenSettings: () => void;
     onPublish: () => void;
@@ -26,7 +26,7 @@ interface NodeLinkDiagramProps {
 
 export default function NodeLinkDiagram({
     items,
-    selectedItemId,
+    selectedIndex,
     onSelectItem,
     onAddWaypoint,
     onDeleteWaypoint,
@@ -37,8 +37,8 @@ export default function NodeLinkDiagram({
     isSettingsComplete,
     title
 }: NodeLinkDiagramProps) {
-    // 挿入メニューを表示しているアイテムのID
-    const [addingAfterId, setAddingAfterId] = useState<string | null>(null);
+    // 挿入メニューを表示しているアイテムのインデックス
+    const [addingAfterIndex, setAddingAfterIndex] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const scrollDirection = useAtomValue(scrollDirectionAtom);
@@ -63,7 +63,7 @@ export default function NodeLinkDiagram({
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setAddingAfterId(null);
+                setAddingAfterIndex(null);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -127,14 +127,14 @@ export default function NodeLinkDiagram({
                     )}
 
                     {items.map((item, index) => {
-                        const isSelected = selectedItemId === item.id;
+                        const isSelected = selectedIndex === index;
                         const isWaypoint = item.type === 'waypoint';
 
                         // このアイテムが開始するグリッド行のインデックス
                         const startRow = index * 2 + 1;
 
                         return (
-                            <div key={item.id} className="contents group/item">
+                            <div key={index} className="contents group/item">
                                 {/* 左列：ノードエリア (2行分を占有して中央配置を容易にする) */}
                                 <div
                                     style={{ gridRow: `${startRow} / span 2`, gridColumn: '1' }}
@@ -143,7 +143,7 @@ export default function NodeLinkDiagram({
                                     <RouteNode
                                         item={item}
                                         isSelected={isSelected}
-                                        onSelect={() => onSelectItem(item.id)}
+                                        onSelect={() => onSelectItem(index)}
                                     />
                                 </div>
 
@@ -156,15 +156,15 @@ export default function NodeLinkDiagram({
                                         <WaypointCard
                                             item={item}
                                             isSelected={isSelected}
-                                            onSelect={() => onSelectItem(item.id)}
-                                            onDelete={() => onDeleteWaypoint(item.id)}
+                                            onSelect={() => onSelectItem(index)}
+                                            onDelete={() => onDeleteWaypoint(index)}
                                         />
                                     ) : (
                                         <TransportationCard
                                             item={item}
                                             isSelected={isSelected}
-                                            onSelect={() => onSelectItem(item.id)}
-                                            onDelete={() => onDeleteWaypoint(item.id)}
+                                            onSelect={() => onSelectItem(index)}
+                                            onDelete={() => onDeleteWaypoint(index)}
                                         />
                                     )}
                                 </div>
@@ -181,12 +181,14 @@ export default function NodeLinkDiagram({
                                         className="relative flex items-center justify-center group/link z-20"
                                     >
                                         <InlineAddMenu
-                                            isAdding={addingAfterId === item.id}
+                                            isAdding={addingAfterIndex === index}
                                             menuRef={menuRef}
-                                            onToggle={() => setAddingAfterId(addingAfterId === item.id ? null : item.id)}
+                                            onToggle={() => {
+                                                setAddingAfterIndex(addingAfterIndex === index ? null : index);
+                                            }}
                                             onAddItem={(type) => {
-                                                onAddItem(item.id, type);
-                                                setAddingAfterId(null);
+                                                onAddItem(index, type);
+                                                setAddingAfterIndex(null);
                                             }}
                                         />
                                     </div>
