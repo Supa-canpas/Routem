@@ -13,10 +13,10 @@ export default function RouteCardBasic(props: Props) {
         <Link href={`/routes/${props.route.id}`} className={'group w-full h-[320px] overflow-hidden rounded-2xl flex shadow-sm hover:shadow-2xl transition-shadow duration-700 bg-background-1'}>
             <div className={'flex-1 h-full relative overflow-hidden'}>
                 {/* オーバーレイ（視認性向上） - Smoother blur gradient with masked blur to avoid sharp boundary */}
-                <div className="absolute inset-x-0 bottom-0 h-1/2 z-10">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 via-black/10 to-transparent" />
-                    <div className="absolute inset-0 backdrop-blur-[4px] [mask-image:linear-gradient(to_top,black_40%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_top,black_40%,transparent_100%)]" />
-                </div>
+                <div className="absolute inset-0 z-10
+                    backdrop-blur-xl bg-black/40
+                    [mask-image:linear-gradient(to_top,black_40%,transparent_100%)]
+                    [-webkit-mask-image:linear-gradient(to_top,black_40%,transparent_100%)]" />
                 <Image
                     src={props.route.thumbnail?.url ?? '/map.png'}
                     alt={props.route.title}

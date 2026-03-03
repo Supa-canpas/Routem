@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React from 'react'
 import { BiHash } from 'react-icons/bi'
-import {HiHeart, HiClock, HiBanknotes} from 'react-icons/hi2'
+import {HiHeart, HiClock, HiBanknotes, HiEye} from 'react-icons/hi2'
 import {Route} from "@/lib/client/types";
 import Image from 'next/image';
 
@@ -31,9 +31,9 @@ export default function FeaturedRouteCard(props: Props) {
 
         {/* Gradient Mask Overlay (Top to Bottom) with Smooth Blur - Inside the image container */}
         <div className="absolute inset-0 rounded-lg
-      backdrop-blur-2xl bg-black/50
-      [mask-image:linear-gradient(to_bottom,transparent_10%,black_80%)]
-      [-webkit-mask-image:linear-gradient(to_bottom,transparent_10%,black_80%)]" />
+      backdrop-blur-xl bg-black/40
+      [mask-image:linear-gradient(to_bottom,transparent_20%,black_90%)]
+      [-webkit-mask-image:linear-gradient(to_bottom,transparent_20%,black_90%)]" />
 
         {/* Content Container (Padding around edges) - Inside the image container */}
         <div className="absolute inset-0 p-4 flex flex-col justify-between text-white">
@@ -55,10 +55,17 @@ export default function FeaturedRouteCard(props: Props) {
                 <span className="opacity-60">•</span>
                 <span className="truncate">{props.route.category?.name}</span>
               </div>
-              <div className="flex items-center gap-1 shrink-0 text-[10px] font-bold uppercase tracking-[0.3em] text-white/80">
-                <HiHeart className="w-4 h-4 text-accent-0" />
-                <span className="tabular-nums">{props.route.likes?.length ?? 0}</span>
-                <span className="truncate">new likes</span>
+              <div className="flex items-center gap-3 shrink-0 text-[10px] font-bold uppercase tracking-[0.3em] text-white/80">
+                <div className="flex items-center gap-1">
+                  <HiHeart className="w-4 h-4 text-accent-0" />
+                  <span className="tabular-nums">{props.route.likes?.length ?? 0}</span>
+                  <span className="truncate">likes</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <HiEye className="w-4 h-4 text-accent-1" />
+                  <span className="tabular-nums">{props.route.views?.length ?? 0}</span>
+                  <span className="truncate">views</span>
+                </div>
               </div>
             </div>
 
