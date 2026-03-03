@@ -20,12 +20,18 @@ export default function UserProfileHeader({
     <>
       <CoverImage url={bgUrl} />
       <div className="w-full h-fit max-w-[1200px] mx-auto px-6">
-        <div className="relative -mt-16 md:-mt-24 mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
-            <UserAvatar url={iconUrl} name={name} />
-            <ProfileInfo name={name} bio={bio} />
+        <div className="relative -mt-16 md:-mt-24 mb-6 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-6 min-w-0">
+            <div className="shrink-0">
+              <UserAvatar url={iconUrl} name={name} />
+            </div>
+            <div className="md:mt-28">
+              <ProfileInfo name={name} bio={bio} />
+            </div>
           </div>
-          <ActionButtons isOwnPage={isOwnPage} />
+          <div className="md:mt-28 md:pt-2">
+            <ActionButtons isOwnPage={isOwnPage} />
+          </div>
         </div>
       </div>
     </>
