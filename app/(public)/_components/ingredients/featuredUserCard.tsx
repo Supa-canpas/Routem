@@ -35,10 +35,10 @@ export default function FeaturedUserCard(props: Props) {
         />
 
         {/* Gradient Mask Overlay (Top to Bottom) with Smooth Blur - Inside the image container */}
-        <div className="absolute inset-0 rounded-lg
+        <div className="absolute inset-0 rounded-lg overflow-hidden
       backdrop-blur-2xl bg-black/50
-      [mask-image:linear-gradient(to_bottom,transparent_10%,black_90%)]
-      [-webkit-mask-image:linear-gradient(to_bottom,transparent_10%,black_90%)]" />
+      [mask-image:linear-gradient(to_bottom,transparent_10%,black_80%)]
+      [-webkit-mask-image:linear-gradient(to_bottom,transparent_10%,black_80%)]" />
 
         {/* Content Container (Padding around edges) - Inside the image container */}
         <div className="absolute inset-0 p-4 flex flex-col justify-between text-white">

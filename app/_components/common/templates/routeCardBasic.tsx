@@ -14,9 +14,9 @@ export default function RouteCardBasic(props: Props) {
             <div className={'flex-1 h-full relative overflow-hidden rounded-xl'}>
                 {/* オーバーレイ（視認性向上） - Smoother blur gradient with masked blur to avoid sharp boundary */}
                 <div className="absolute inset-0 z-10 rounded-xl overflow-hidden
-                    backdrop-blur-md bg-black/35
-                    [mask-image:linear-gradient(to_top,black,transparent)]
-                    [-webkit-mask-image:linear-gradient(to_top,black,transparent)]" />
+                    backdrop-blur-2xl bg-black/50
+                    [mask-image:linear-gradient(to_bottom,transparent_10%,black_80%)]
+                    [-webkit-mask-image:linear-gradient(to_bottom,transparent_10%,black_80%)]" />
                 <Image
                     src={props.route.thumbnail?.url ?? '/map.png'}
                     alt={props.route.title}
@@ -31,7 +31,7 @@ export default function RouteCardBasic(props: Props) {
                     </div>
                 </div>
             </div>
-            <div className={'w-[45%] h-full min-w-[160px] flex flex-col gap-4 p-6 bg-background-1 rounded-xl'}>
+            <div className={'w-[45%] h-full min-w-[160px] flex flex-col gap-4 p-6 bg-background-1 rounded-xl shadow-inner'}>
                 <div className="w-full flex flex-col gap-3">
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 rounded-full">
