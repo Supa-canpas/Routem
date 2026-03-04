@@ -39,11 +39,11 @@ export const routesService = {
       ...visibility_condition,
     };
 
-    const result = await routesRepository.findRoutes({
+    return routesRepository.findRoutes({
       where,
       take: query.limit,
       orderBy: {
-        createdAt: "desc",
+        createdAt: "asc",
       },
       include: {
         category: true,
@@ -64,104 +64,84 @@ export const routesService = {
         },
       },
     });
-    return result;
   },
 
-  postRoute: async (body: postRouteType, user: User) => {
-    const {
-      items,
-      title,
-      description,
-      category,
-      visibility,
-      thumbnailImageSrc,
-    } = body;
+  postRoute: async (body: postRouteType, user_id: string) => {
+    const current_nodes: Prisma.RouteNodeCreateWithoutRouteInput[] = [];
+    let current_node: Prisma.RouteNodeCreateWithoutRouteInput | null = null;
+    if (body.items) {
+      for (const item of body.items) {
+        if (item.type === "waypoint") {
+          current_node = {
+            order: current_nodes.length,
+            details: item.memo,
+            spot: {
+              create: {
+              name: item.name,
+              latitude: item.lat,
+                longitude: item.lng,
+                source: item.source,
+                sourceId: item.sourceId,
+              },
+            },
+            transitSteps: { create: [] },
+            images: {
+              create: Array.isArray(item.images)
+                ? item.images.map((url) => ({
+                    url,
+                    type: ImageType.NODE_IMAGE,
+                    status: ImageStatus.ADOPTED,
+                  }))
+                : [],
+            },
+          };
 
-    // 1) waypointのみを抽出
-    const waypointItems = items.filter((item) => item.type === "waypoint");
-
-    // 2) 各Waypointに対応するデータを加工
-    const nodesData = waypointItems.map((w, order) => {
-      const name = w.name ?? `Waypoint ${order + 1}`;
-      const lat = typeof w.lat === "number" ? w.lat : 0;
-      const lng = typeof w.lng === "number" ? w.lng : 0;
-      const details = w.memo ?? "";
-      const source = w.source?.toLowerCase() === "mapbox" ? "MAPBOX" : "USER";
-      const sourceId = w.sourceId;
-
-      // 該当するwaypointの後のTransportationアイテムを取得
-      const waypointIndexInItems = items.findIndex((it: any) => it.id === w.id);
-      let transitStepsData: any[] = [];
-
-      // 経由地のindexが最後ではないとき
-      if (waypointIndexInItems !== -1 && order < waypointItems.length - 1) {
-        const nextWaypoint = waypointItems[order + 1];
-        const nextWaypointIndexInItems = items.findIndex(
-          (it: any) => it.id === nextWaypoint.id,
-        );
-
-        const between = items.slice(
-          waypointIndexInItems + 1,
-          nextWaypointIndexInItems,
-        );
-        const transItems = between.filter(
-          (it: any) => it.type === "transportation",
-        );
-
-        transitStepsData = transItems
-          .filter((trans: any) => trans.method)
-          .map((trans: any, idx: number) => ({
-            mode: mapMethodToTransitMode(trans.method),
-            memo: trans.memo ?? "",
-            order: idx,
-            duration: trans.duration,
-            distance: trans.distance,
-          }));
-      }
-
-      return {
-        order,
-        details,
-        spot: {
-          name,
-          latitude: lat,
-          longitude: lng,
-          source,
-          sourceId
-        },
-        transitSteps: transitStepsData,
-        images: Array.isArray(w.images)
-          ? w.images.map((url) => ({
-              url,
-              type: ImageType.NODE_IMAGE,
-              status: ImageStatus.ADOPTED,
-              uploaderId: user.id,
-            }))
-          : [],
-      };
-    });
-
-    // 3) サムネイル画像の準備
-    const thumbnailData = thumbnailImageSrc
-      ? {
-          url: thumbnailImageSrc,
-          type: ImageType.ROUTE_THUMBNAIL,
-          status: ImageStatus.ADOPTED,
-          uploaderId: user.id,
+          current_nodes.push(current_node);
+        } else if(item.type === "transportation") {
+          if (current_node && current_node?.transitSteps?.create) {
+            (current_node?.transitSteps.create as any[]).push({
+              order: (current_node?.transitSteps.create as any[]).length,
+              mode: item.method,
+              memo: item.memo,
+              distance: item.distance,
+              duration: item.duration,
+            });
+          }
         }
-      : null;
+      }
+    }
 
-    // repository層のcreateRouteを呼び出す
+    
+
     return await routesRepository.createRoute({
-      title,
-      description,
-      category,
-      visibility: visibility.toUpperCase() as RouteVisibility,
-      userId: user.id,
-      nodes: nodesData,
-      thumbnail: thumbnailData,
+      data: {
+        title: body.title ?? undefined,
+        description: body.description ?? undefined,
+        visibility: body.visibility as RouteVisibility ?? undefined,
+        
+        category:{
+          connect:{
+            id:body.categoryId,
+          }
+        },
+
+        thumbnail: {
+          create: {
+            url: body.thumbnailImageSrc,
+            type: ImageType.ROUTE_THUMBNAIL,
+            status:ImageStatus.ADOPTED
+          },
+        },
+
+        ...(body.items && {
+          routeNodes: {
+            create: current_nodes,
+          },
+        }),
+      },
     });
   },
+  
   patchRoute: async (parsed_body: PatchRouteType) => {
     const current_nodes: Prisma.RouteNodeCreateWithoutRouteInput[] = [];
     let current_node: Prisma.RouteNodeCreateWithoutRouteInput | null = null;
@@ -207,6 +187,8 @@ export const routesService = {
           }
         }
       }
+
+      
     }
 
     return await routesRepository.updateRoute({

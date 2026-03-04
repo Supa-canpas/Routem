@@ -12,7 +12,7 @@ export const GetRoutesSchema = z.object({
 export type GetRoutesType = z.infer<typeof GetRoutesSchema>;
 
 export const PostRouteSchema = z.object({
-    category: z.string().min(1, "Category is required"),
+    categoryId: z.string().uuid(),
     description: z.string(),
     items: z.array(z.union([WaypointSchema, TransportationSchema])).min(1, "At least one route item is required"),
     thumbnailImageSrc: z.string().startsWith(process.env.MINIO_ENDPOINT || "", "Thumbnail image must be a valid URL"),

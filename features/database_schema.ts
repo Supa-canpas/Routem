@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { id } from "zod/v4/locales";
 
 export const WaypointSchema = z.object({
   id: z.string().uuid().optional(), 
@@ -11,6 +12,8 @@ export const WaypointSchema = z.object({
   source: z.enum(["MAPBOX", "USER"]).optional(),
   sourceId: z.string().optional(),
 });
+
+export const PostWaypointSchema = WaypointSchema.omit({id:true});
 
 export const TransportationSchema = z.object({
   type: z.literal("transportation"),

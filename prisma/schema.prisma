@@ -81,7 +81,7 @@ model Route {
   createdAt   DateTime @default(now())
   title       String   @db.VarChar(100)
   description String
-  categoryId  Int
+  categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   thumbnail   Image?   @relation("RouteThumbnail")
 
@@ -127,7 +127,7 @@ model TransitStep {
 }
 
 model Category {
-  id     Int     @id @default(autoincrement())
+  id     String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name   String  @unique
   routes Route[]
 }
