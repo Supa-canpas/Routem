@@ -8,6 +8,8 @@ export const routesRepository = {
         return returned
     },
     createRoute: async (data: any) => {
+        // service から Prisma の create 引数がそのまま渡る新経路を優先する
+        if ("data" in data) return getPrisma().route.create(data);
         const prisma = getPrisma();
         const { title, description, category, visibility, userId, nodes, thumbnail } = data;
 

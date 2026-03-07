@@ -111,20 +111,15 @@ export const routesService = {
       }
     }
 
-    
-
-    return await routesRepository.createRoute({
+    const route = await routesRepository.createRoute({
       data: {
         title: body.title ?? undefined,
         description: body.description ?? undefined,
         visibility: body.visibility as RouteVisibility ?? undefined,
-        
-        category:{
-          connect:{
-            id:body.categoryId,
-          }
-        },
-
+        // Route.authorId は必須なので、POST 作成時にログインユーザーを必ず結びつける
+        author: { connect: { id: user_id } },
+        // 現在の投稿画面は category 名を送るため、name ベース作成も許可する
+        category: body.categoryId ? { connect: { id: body.categoryId } } : { connectOrCreate: { where: { name: body.category! }, create: { name: body.category! } } },
         thumbnail: {
           create: {
             url: body.thumbnailImageSrc,
@@ -132,14 +127,16 @@ export const routesService = {
             status:ImageStatus.ADOPTED
           },
         },
-
         ...(body.items && {
           routeNodes: {
             create: current_nodes,
           },
         }),
       },
+      // 呼び出し側が期待している routeId だけ返す
+      select: { id: true },
     });
+    return { routeId: route.id };
   },
   
   patchRoute: async (parsed_body: PatchRouteType) => {

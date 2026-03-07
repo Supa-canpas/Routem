@@ -12,13 +12,15 @@ export const GetRoutesSchema = z.object({
 export type GetRoutesType = z.infer<typeof GetRoutesSchema>;
 
 export const PostRouteSchema = z.object({
-    categoryId: z.string().uuid(),
+    // 新UIは category 名を送り、既存実装は categoryId を使うので両対応にする
+    categoryId: z.string().uuid().optional(),
+    category: z.string().min(1).optional(),
     description: z.string(),
     items: z.array(z.union([WaypointSchema, TransportationSchema])).min(1, "At least one route item is required"),
     thumbnailImageSrc: z.string().startsWith(process.env.MINIO_ENDPOINT || "", "Thumbnail image must be a valid URL"),
     title: z.string().min(1, "Title is required").max(100, "Title must be at most 100 characters"),
     visibility: z.enum(["PUBLIC", "PRIVATE"]),
-});
+}).refine((data) => data.categoryId || data.category, { message: "category or categoryId is required" });
 export type postRouteType = z.infer<typeof PostRouteSchema>;
 
 export const PatchRouteSchema = z.object({
